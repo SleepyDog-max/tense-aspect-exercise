@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tense and Aspect Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .quiz-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 500px;
+            text-align: left;
+        }
+        .question {
+            display: none;
+        }
+        .question.active {
+            display: block;
+        }
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        .summary {
+            display: none;
+        }
+        .summary.active {
+            display: block;
+        }
+        input[type="text"], input[type="radio"] {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <!-- Question 1 -->
+        <div class="question active" id="q1">
+            <h3>Question 1</h3>
+            <p>Which sentence uses the present progressive aspect to emphasize an ongoing action?</p>
+            <label><input type="radio" name="q1" value="a"> a) She writes emails every morning.</label><br>
+            <label><input type="radio" name="q1" value="b"> b) He’s working on a big project this week.</label><br>
+            <label><input type="radio" name="q1" value="c"> c) They’ve finished the assignment already.</label><br>
+            <label><input type="radio" name="q1" value="d"> d) I’ll call you tomorrow.</label>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="question" id="q2">
+            <h3>Question 2</h3>
+            <p>Use the verb “to study” in the past perfect progressive tense to complete this sentence:</p>
+            <p>“By the time the exam started, she ______ for three hours.”</p>
+            <input type="text" id="q2-answer" placeholder="Type your answer here">
+        </div>
+
+        <!-- Question 3 -->
+        <div class="question" id="q3">
+            <h3>Question 3</h3>
+            <p>What tense and aspect are used in this sentence: “We were watching TV when the power went out”?</p>
+            <label><input type="radio" name="q3" value="a"> a) Past simple</label><br>
+            <label><input type="radio" name="q3" value="b"> b) Past progressive</label><br>
+            <label><input type="radio" name="q3" value="c"> c) Present perfect</label><br>
+            <label><input type="radio" name="q3" value="d"> d) Future progressive</label>
+        </div>
+
+        <!-- Question 4 -->
+        <div class="question" id="q4">
+            <h3>Question 4</h3>
+            <p>Rewrite this sentence, changing only the aspect from simple to perfect:</p>
+            <p>“He runs five miles every day.”</p>
+            <input type="text" id="q4-answer" placeholder="Type your answer here">
+        </div>
+
+        <!-- Question 5 -->
+        <div class="question" id="q5">
+            <h3>Question 5</h3>
+            <p>What’s the difference in meaning between “I painted the house” and “I was painting the house”? Identify the tense and aspect for each.</p>
+            <input type="text" id="q5-answer" placeholder="Type your answer here" style="width: 100%; height: 50px;">
+        </div>
+
+        <!-- Summary -->
+        <div class="summary" id="summary">
+            <h3>Quiz Summary</h3>
+            <p>Score: <span id="score"></span>/5</p>
+            <h4>Answers and Explanations:</h4>
+            <div id="summary-details"></div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="buttons">
+            <button id="prev">Previous</button>
+            <button id="next">Next</button>
+            <button id="restart" style="display: none;">Restart</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = document.querySelectorAll('.question');
+        const summary = document.getElementById('summary');
+        const prevBtn = document.getElementById('prev');
+        const nextBtn = document.getElementById('next');
+        const restartBtn = document.getElementById('restart');
+        let currentQuestion = 0;
+        let answers = {};
+
+        function showQuestion(index) {
+            questions.forEach((q, i) => {
+                q.classList.toggle('active', i === index);
+            });
+            summary.classList.remove('active');
+            prevBtn.disabled = index === 0;
+            nextBtn.textContent = index === questions.length - 1 ? 'Submit' : 'Next';
+            nextBtn.disabled = false; // Ensure button is clickable
+            restartBtn.style.display = 'none';
+        }
+
+        function saveAnswer() {
+            const qId = questions[currentQuestion].id;
+            if (qId === 'q2' || qId === 'q4' || qId === 'q5') {
+                answers[qId] = document.getElementById(`${qId}-answer`).value.trim();
+            } else {
+                const selected = document.querySelector(`input[name="${qId}"]:checked`);
+                answers[qId] = selected ? selected.value : null;
+            }
+        }
+
+        function showSummary() {
+            saveAnswer();
+            let score = 0;
+            const correctAnswers = {
+                q1: 'b',
+                q2: 'had been studying',
+                q3: 'b',
+                q4: 'has run',
+                q5: '“I painted the house” (past simple) means the action is fully completed at a specific past time. “I was painting the house” (past progressive) means the action was ongoing in the past, possibly unfinished or interrupted.'
+            };
+            const explanations = {
+                q1: '“He’s working on a big project this week” uses present progressive to show an ongoing action.',
+                q2: 'Past perfect progressive (“had been studying”) indicates a continuous action before another past event.',
+                q3: 'Past progressive (“were watching”) shows an ongoing action interrupted in the past.',
+                q4: '“Has run” shifts the simple aspect to perfect, implying a completed action with present relevance.',
+                q5: 'Correct answer explains tense (past) and aspect (simple vs. progressive) with their meanings.'
+            };
+
+            let summaryDetails = '';
+            for (let i = 1; i <= 5; i++) {
+                const qId = `q${i}`;
+                const userAnswer = answers[qId] || 'Not answered';
+                const correctAnswer = correctAnswers[qId];
+                const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase();
+                if (isCorrect) score++;
+                summaryDetails += `
+                    <p><strong>Question ${i}:</strong></p>
+                    <p>Your answer: ${userAnswer}</p>
+                    <p>Correct answer: ${correctAnswer}</p>
+                    <p>Explanation: ${explanations[qId]}</p>
+                    <p>${isCorrect ? 'Correct!' : 'Incorrect'}</p><hr>
+                `;
+            }
+
+            document.getElementById('score').textContent = score;
+            document.getElementById('summary-details').innerHTML = summaryDetails;
+            questions.forEach(q => q.classList.remove('active'));
+            summary.classList.add('active');
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+            restartBtn.style.display = 'block';
+        }
+
+        prevBtn.addEventListener('click', () => {
+            saveAnswer();
+            currentQuestion--;
+            showQuestion(currentQuestion);
+        });
+
+        nextBtn.addEventListener('click', () => {
+            saveAnswer();
+            if (currentQuestion === questions.length - 1) {
+                showSummary();
+            } else {
+                currentQuestion++;
+                showQuestion(currentQuestion);
+            }
+        });
+
+        restartBtn.addEventListener('click', () => {
+            currentQuestion = 0;
+            answers = {};
+            questions.forEach(q => {
+                if (q.id === 'q2' || q.id === 'q4' || q.id === 'q5') {
+                    document.getElementById(`${q.id}-answer`).value = '';
+                } else {
+                    document.querySelectorAll(`input[name="${q.id}"]`).forEach(input => input.checked = false);
+                }
+            });
+            showQuestion(0);
+            prevBtn.style.display = 'block';
+            nextBtn.style.display = 'block';
+        });
+
+        showQuestion(0);
+    </script>
+</body>
+</html>
